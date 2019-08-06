@@ -12,7 +12,7 @@
             <md-table
               v-model="transactions"
               :table-header-color="tableHeaderColor"
-              md-sort="dateTime"
+              md-sort="date"
               md-sort-order="asc"
             >
               <md-table-empty-state
@@ -21,7 +21,7 @@
               ></md-table-empty-state>
 
               <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="Transaction Date" md-sort-by="dateTime">{{ item.dateTime }}</md-table-cell>
+                <md-table-cell md-label="Transaction Date" md-sort-by="date">{{ item.date }}</md-table-cell>
                 <md-table-cell
                   md-label="Patient's Name"
                   md-sort-by="patientName"
@@ -72,7 +72,7 @@ export default {
         querySnapshot.forEach(doc => {
           const data = {
             id: doc.id,
-            dateTime: this.structureDateTime(doc.data().timestamp),
+            date: doc.data().date,
             patientName: doc.data().patientName,
             doctorName: doc.data().doctorName,
             doctorSpeciality: doc.data().doctorSpeciality,
@@ -83,22 +83,7 @@ export default {
       });
   },
   methods: {
-    structureDateTime(timestamp) {
-      var array = timestamp.split("-");
-      var dateString =
-        array[0] +
-        "/" +
-        array[1] +
-        "/" +
-        array[2] +
-        "  " +
-        array[3] +
-        ":" +
-        array[4] +
-        ":" +
-        array[5];
-      return dateString;
-    } //end structure date and time
+    //
   }
 };
 </script>

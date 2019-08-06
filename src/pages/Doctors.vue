@@ -11,7 +11,7 @@
         <span style="margin-left:1vh">Add new doctor</span>
       </router-link>
       <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
-        <pulse-loader :loading="loading" :color="color" :size="size" v-show="showLoader"></pulse-loader>
+        <pulse-loader  :color="color"  v-show="showLoader"></pulse-loader>
         <md-card>
           <md-card-header data-background-color="blue" class="md-layout">
             <div class="md-toolbar-section-start md-layout-item">
@@ -116,7 +116,6 @@ export default {
       search: null,
       searched: [],
       doctors_array: [],
-      loading: true,
       doctorMarkers: []
     };
   },

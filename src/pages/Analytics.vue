@@ -2,7 +2,7 @@
   <div class="content">
     <div class="md-layout">
       
-        <pulse-loader :loading="loading" :color="color" :size="size" v-show="showLoader"></pulse-loader>
+        <pulse-loader :color="transactionsLoaderColor" v-show="showTransactionsLoader"></pulse-loader>
 
       <div class="md-layout-item md-large-size-100 md-xsmall-size-100 md-size-100">
         <chart-card
@@ -24,8 +24,34 @@
           </template>
         </chart-card>
       </div>
-      <!--End daily sales-->
-    </div>
+    </div> <!-- End transactions graph document -->
+
+    <div class="md-layout">
+      
+        <pulse-loader :color="requestLoaderColor"  v-show="showRequestsLoader"></pulse-loader>
+
+      <div class="md-layout-item md-large-size-100 md-xsmall-size-100 md-size-100">
+        <chart-card
+          :chart-data="dailyRequestsChart.data"
+          :chart-options="dailyRequestsChart.options"
+          :chart-type="'Line'"
+          :key="requestsGraphComponentKey"
+          data-background-color="green"
+        >
+          <template slot="content">
+            <h4 class="title">Daily Requests</h4>
+          </template>
+
+          <template slot="footer">
+            <div class="stats">
+              <md-icon>access_time</md-icon>Updated last at:
+              <span id="app">{{ last_refresh_time }}</span>
+            </div>
+          </template>
+        </chart-card>
+      </div>
+    </div> <!-- End requests graph document -->
+
   </div>
 </template>
 
@@ -56,11 +82,14 @@ export default {
   name: "Transactions",
   data() {
     return {  
-      showLoader: true,  //to activate spinner 
       last_refresh_time: null,
+
+      transactionsLoaderColor:"#15BBCF",
+      transactionsLoading:true,
+      showTransactionsLoader: true,  
+      showRequestsLoader: true,  
       transactionsGraphComponentKey: 0,
       transactions_array: [],
-      loading: true,
       dailyTransactionsChart: {
         data: {
           labels: [],
@@ -71,7 +100,7 @@ export default {
             tension: 0
           }),
           low: 0,
-          high: 5, // the Y axis
+          high: 10, // the Y axis
           chartPadding: {
             top: 0,
             right: 0,
@@ -79,7 +108,30 @@ export default {
             left: 0
           }
         }
-      } //End daily transactions chart
+      }, //End daily transactions chart
+      requestLoaderColor:"#57AF5B",
+      requestsLoading:true,
+      requestsGraphComponentKey: 0,
+      requests_array: [],
+      dailyRequestsChart: {
+        data: {
+          labels: [],
+          series: []
+        },
+        options: {
+          lineSmooth: this.$Chartist.Interpolation.cardinal({
+            tension: 0
+          }),
+          low: 0,
+          high: 10, // the Y axis
+          chartPadding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+          }
+        }
+      } //End daily Requests chart
     };
   },
   created() {
@@ -97,9 +149,13 @@ export default {
     // and mark it as 'async'. This allows us to 'await' on a Promise.
     async run() {
       //Initiation of program functions
-      await this.transactionAnalytics();
-      await this.forceRerender();
-      this.showLoader = false; //Remove loader
+      await this.transactionAnalytics();  //call function
+      await this.forceRerender("transactionsGraphComponentKey");   //re-render component
+      this.showTransactionsLoader = false; //Remove loader
+      await this.requestsAnalytics();
+      await this.forceRerender("requestsGraphComponentKey");
+      this.showRequestsLoader = false; 
+      
     }, // End function Run
 
     async transactionAnalytics() {
@@ -141,7 +197,7 @@ export default {
           "transactions",
           date
         );
-        console.log(date + " : " + no_of_transactions);
+       // console.log(date + " : " + no_of_transactions);
 
         /*
          *Now add the days and their respective series (no of trans) on the graph data
@@ -164,6 +220,68 @@ export default {
       //  console.log(this.dailyTransactionsChart.data.labels);
     }, //end transaction Analytics
 
+    async requestsAnalytics() {
+      let requestLabels = [];
+      let requestSeries = [];
+      let requestSeriesArray = [];
+
+      var dateStartAnalysis = new Date();
+      dateStartAnalysis.setDate(dateStartAnalysis.getDate() - 6);
+
+      //console.log(dateStartAnalysis);
+
+      /**
+       * Declaration of variables to be used INSIDE the loop
+       *
+       */
+      var counter = 0;
+      while (counter <= 6) {
+        /**
+         * Declaration of variables to be used WHILE looping
+         */
+        var no_of_requests;
+        var day;
+        var date;
+
+        // get the name of the day with function, convert to string timestamp
+        day = this.getDay(dateStartAnalysis.toString());
+        // structure date to match with that in database
+        date = this.structureDate(dateStartAnalysis);
+
+        // console.log(day);
+        // console.log(date);
+
+        /**
+         * Check Number of requests on every date
+         *
+         */
+        no_of_requests = await this.getCollectionCount(
+          "requests",
+          date
+        );
+     //   console.log(date + " : " + no_of_requests);
+
+        /*
+         *Now add the days and their respective series (no of trans) on the graph data
+         */
+        requestLabels[counter] = day + " (" + date + ")";
+        requestSeries[counter] = no_of_requests;
+        //  console.log(requestSeries);
+
+        counter++; //increment counter
+        //Increment date with 1
+        dateStartAnalysis.setDate(dateStartAnalysis.getDate() + 1);
+      } // End while loop
+
+      requestSeriesArray.push(requestSeries);
+
+      this.dailyRequestsChart.data.labels = requestLabels;
+      this.dailyRequestsChart.data.series = requestSeriesArray;
+
+      //  console.log(this.dailyrequestsChart.data.series);
+      //  console.log(this.dailyrequestsChart.data.labels);
+    }, //end request Analytics
+
     //Function to return day of timestam
     getDay(timestamp) {
       var array = timestamp.split(" ");
@@ -171,12 +289,12 @@ export default {
     },
 
     //Function to refresh graph after data is fetched
-    forceRerender() {
-      this.transactionsGraphComponentKey += 1;
+    forceRerender(graphComponentKey) {
+      this.graphComponentKey += 1;
     },
 
     async getCollectionCount(collectionName, dateToCount) {
-      var no_of_transactions = 0;
+      var counter = 0;
       await db
         .collection(collectionName)
         .where("date", "==", dateToCount)
@@ -184,12 +302,12 @@ export default {
         .then(querySnapshot => {
           querySnapshot.forEach(doc => {
             /**
-             * Increment the number of transactions
+             * Increment the count
              */
-            no_of_transactions++;
+            counter++;
           });
         }); //end request collection
-      return no_of_transactions;
+      return counter;
     }, // end getCollectionCount on particular date
 
     structureDate(timestamp) {
@@ -201,9 +319,9 @@ export default {
       var year = array[3];
 
       //add a 0 before if less than 10
-      if (day < 10) {
-        day = "0" + day;
-      }
+      // if (day < 10) {
+      //   day = "0" + day;
+      // }
       if (month < 10) {
         month = "0" + month;
       }
