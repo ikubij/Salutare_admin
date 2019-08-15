@@ -9,13 +9,15 @@ import PatientDetails from "@/pages/PatientDetails.vue";
 import Transactions from "@/pages/Transactions.vue";
 import Appointments from "@/pages/Appointments.vue";
 import Requests from "@/pages/Requests.vue";
+import Notices from "@/pages/Notices.vue";
+import NewNotice from "@/pages/NewNotice.vue";
 import Analytics from "@/pages/Analytics.vue";
 
 const routes = [
   {
     path: "/",
     component: DashboardLayout,
-    redirect: "/doctors",
+    redirect: "/dashboard",
     children: [
       {
         path: "dashboard",
@@ -61,6 +63,16 @@ const routes = [
         path: "/requests",
         name: "Requests",
         component: Requests
+      },
+      {
+        path: "notices",
+        name: "Notices",
+        component: Notices
+      },
+      {
+        path: "/new notice",
+        name: "NewNotice",
+        component: NewNotice
       },
       {
         path: "/analytics",

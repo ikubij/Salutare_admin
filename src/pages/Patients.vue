@@ -8,14 +8,14 @@
               <h4 class="title">Salutare Patients</h4>
             </div>
             <md-field md-clearable class="md-toolbar-section-end md-layout-item">
-              <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable" />
+              <md-input placeholder="Search by any criteria..." v-model="search" @input="searchOnTable" />
             </md-field>
           </md-card-header>
           <md-card-content>
             <md-table
               v-model="patients"
               :table-header-color="tableHeaderColor"
-              md-sort="firstName"
+              md-sort="patientName"
               md-sort-order="asc"
             >
               <md-table-empty-state
@@ -24,12 +24,11 @@
               ></md-table-empty-state>
 
               <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="First Name">{{ item.firstName }}</md-table-cell>
-                <md-table-cell md-label="Last Name">{{ item.lastName }}</md-table-cell>
-                <md-table-cell md-label="Phone no">{{ item.phone }}</md-table-cell>
-                <md-table-cell md-label="Email">{{ item.email }}</md-table-cell>
-                <md-table-cell md-label="Gender">{{ item.gender }}</md-table-cell>
-                <md-table-cell md-label="Date of birth">{{ item.DOB }}</md-table-cell>
+                <md-table-cell md-label="Patient's Name" md-sort-by="patientName">{{ item.patientName }}</md-table-cell>
+                <md-table-cell md-label="Phone no" md-sort-by="phone">{{ item.phone }}</md-table-cell>
+                <md-table-cell md-label="Email" md-sort-by="email">{{ item.email }}</md-table-cell>
+                <md-table-cell md-label="Gender" md-sort-by="gender">{{ item.gender }}</md-table-cell>
+                <md-table-cell md-label="Date of birth" md-sort-by="DOB">{{ item.DOB }}</md-table-cell>
 
                 <md-table-cell md-label="actions">
                   <md-button
@@ -65,10 +64,14 @@ const toLower = text => {
   return text.toString().toLowerCase();
 };
 
-const searchByName = (items, term) => {
+const searchByCriteria = (items, term) => {
   if (term) {
     return items.filter(item =>
-      toLower(item.firstName).includes(toLower(term))
+      toLower(item.patientName).includes(toLower(term)) ||
+      toLower(item.email).includes(toLower(term)) ||
+      toLower(item.DOB).includes(toLower(term)) ||
+      toLower(item.phone).includes(toLower(term)) ||
+      toLower(item.gender).includes(toLower(term)) 
     );
   }
 
@@ -93,10 +96,10 @@ export default {
       .then(querySnapshot => {
         this.loading = true;
         querySnapshot.forEach(doc => {
+           var patientName = doc.data().firstName + " " + doc.data().lastName;
           const data = {
             id: doc.id,
-            firstName: doc.data().firstName,
-            lastName: doc.data().lastName,
+            patientName: patientName,
             phone: doc.data().phone,
             email: doc.data().email,
             DOB: doc.data().DOB,
@@ -123,7 +126,7 @@ export default {
       }
     }, // end delete Patient
      searchOnTable() {
-      this.patients = searchByName(this.patients_array, this.search);
+      this.patients = searchByCriteria(this.patients_array, this.search);
     } //end search table
   }
 };

@@ -201,7 +201,9 @@ export default {
           residence: this.residence,
           speciality: this.speciality,
           phone: this.phone,
-          email: this.email
+          email: this.email,
+          latestLocation: "",
+          latestActivity: "",
         })
         .then(docRef => {
           // console.log("Doctor added: ", docRef.id);

@@ -3,10 +3,10 @@
     <notifications></notifications>
 
     <side-bar>
-      <!-- <sidebar-link to="/dashboard">
+      <sidebar-link to="/dashboard">
         <md-icon>dashboard</md-icon>
         <p>Dashboard</p>
-      </sidebar-link> -->
+      </sidebar-link>
       <sidebar-link to="/doctors">
         <i class="fas fa-user-md fa-3x" style="color:white"></i>
         <p>Doctors</p>

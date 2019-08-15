@@ -41,7 +41,7 @@
                 <md-table-cell
                   md-label="Doctor's Name"
                   md-sort-by="docName"
-                >{{ item.docName }} {{ item.lastName }}</md-table-cell>
+                >{{ item.docName }}</md-table-cell>
                 <md-table-cell md-label="Phone no" md-sort-by="phone">{{ item.phone }}</md-table-cell>
                 <md-table-cell md-label="Email" md-sort-by="email">{{ item.email }}</md-table-cell>
                 <md-table-cell md-label="Speciality" md-sort-by="speciality">{{ item.speciality }}</md-table-cell>
@@ -89,7 +89,7 @@ const toLower = text => {
   return text.toString().toLowerCase();
 };
 
-const searchByName = (items, term) => {
+const searchByCriteria = (items, term) => {
   if (term) {
     return items.filter(
       item =>
@@ -97,7 +97,8 @@ const searchByName = (items, term) => {
         toLower(item.email).includes(toLower(term)) ||
         toLower(item.speciality).includes(toLower(term)) ||
         toLower(item.phone).includes(toLower(term)) ||
-        toLower(item.residence).includes(toLower(term))
+        toLower(item.activityStatus).includes(toLower(term)) ||
+        toLower(item.residence).includes(toLower(term)) 
     );
   }
 
@@ -242,7 +243,7 @@ export default {
       }
     }, // end delete doctor
     searchOnTable() {
-      this.doctors = searchByName(this.doctors_array, this.search);
+      this.doctors = searchByCriteria(this.doctors_array, this.search);
     } //end search table
   }
 };

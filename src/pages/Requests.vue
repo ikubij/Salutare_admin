@@ -7,12 +7,19 @@
             <div class="md-toolbar-section-start md-layout-item">
               <h4 class="title">Salutare Requests</h4>
             </div>
+            <md-field md-clearable class="md-toolbar-section-end md-layout-item">
+              <md-input
+                placeholder="Search by any criteria..."
+                v-model="search"
+                @input="searchOnTable"
+              />
+            </md-field>
           </md-card-header>
           <md-card-content>
             <md-table
               v-model="requests"
               :table-header-color="tableHeaderColor"
-              md-sort="dateTime"
+              md-sort="date"
               md-sort-order="asc"
             >
               <md-table-empty-state
@@ -21,7 +28,7 @@
               ></md-table-empty-state>
 
               <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <!-- <md-table-cell md-label="Request Date" md-sort-by="dateTime">{{ item.dateTime }}</md-table-cell> -->
+                <md-table-cell md-label="Request Date" md-sort-by="date">{{ item.date }}</md-table-cell>
                 <md-table-cell
                   md-label="Patient's Name"
                   md-sort-by="patientName"
@@ -50,10 +57,26 @@ const toLower = text => {
   return text.toString().toLowerCase();
 };
 
+const searchByCriteria = (items, term) => {
+  if (term) {
+    return items.filter(
+      item =>
+        toLower(item.date).includes(toLower(term)) ||
+        toLower(item.patientName).includes(toLower(term)) ||
+        toLower(item.doctorName).includes(toLower(term)) ||
+        toLower(item.doctorSpeciality).includes(toLower(term)) 
+    );
+  }
+
+  return items;
+};
+
 export default {
   name: "Requests",
   data() {
     return {
+      search: null,
+      searched: [],
       requests_array: [],
       loading: true
     };
@@ -68,32 +91,19 @@ export default {
         querySnapshot.forEach(doc => {
           const data = {
             id: doc.id,
-          //  dateTime: this.structureDateTime(doc.data().timestamp),
+            date: doc.data().date,
             patientName: doc.data().patientName,
             doctorName: doc.data().doctorName,
-            doctorSpeciality: doc.data().doctorSpeciality,
+            doctorSpeciality: doc.data().doctorSpeciality
           };
           this.requests_array.push(data);
         });
       });
   },
   methods: {
-    structureDateTime(timestamp) {
-      var array = timestamp.split("-");
-      var dateString =
-        array[0] +
-        "/" +
-        array[1] +
-        "/" +
-        array[2] +
-        "  " +
-        array[3] +
-        ":" +
-        array[4] +
-        ":" +
-        array[5];
-      return dateString;
-    } //end structure date and time
+    searchOnTable() {
+      this.requests = searchByName(this.requests_array, this.search);
+    } //end search table
   }
 };
 </script>

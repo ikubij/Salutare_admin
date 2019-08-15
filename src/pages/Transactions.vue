@@ -7,6 +7,13 @@
             <div class="md-toolbar-section-start md-layout-item">
               <h4 class="title">Salutare Transactions</h4>
             </div>
+            <md-field md-clearable class="md-toolbar-section-end md-layout-item">
+              <md-input
+                placeholder="Search by any criteria..."
+                v-model="search"
+                @input="searchOnTable"
+              />
+            </md-field>
           </md-card-header>
           <md-card-content>
             <md-table
@@ -54,10 +61,27 @@ const toLower = text => {
   return text.toString().toLowerCase();
 };
 
+const searchByCriteria = (items, term) => {
+  if (term) {
+    return items.filter(
+      item =>
+        toLower(item.date).includes(toLower(term)) ||
+        toLower(item.patientName).includes(toLower(term)) ||
+        toLower(item.doctorName).includes(toLower(term)) ||
+        toLower(item.doctorSpeciality).includes(toLower(term)) ||
+        toLower(item.sessionDuration).includes(toLower(term))
+    );
+  }
+
+  return items;
+};
+
 export default {
   name: "Transactions",
   data() {
     return {
+      search: null,
+      searched: [],
       transactions_array: [],
       loading: true
     };
@@ -83,7 +107,9 @@ export default {
       });
   },
   methods: {
-    //
+    searchOnTable() {
+      this.transactions = searchByCriteria(this.transactions_array, this.search);
+    } //end search table
   }
 };
 </script>
